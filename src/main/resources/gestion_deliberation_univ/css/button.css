@@ -1,0 +1,50 @@
+.bleue-button {
+    -fx-background-color: #2d7dd2;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-background-radius: 6;
+    -fx-cursor: hand;
+}
+.bleue-button:hover {
+    -fx-background-color: #1a5bb8;
+}
+
+.vert-button {
+    -fx-background-color: #28a745;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-background-radius: 6;
+    -fx-cursor: hand;
+}
+.vert-button:hover {
+    -fx-background-color: #218838;
+}
+
+.rouge-button {
+    -fx-background-color: #f44336;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-background-radius: 6;
+    -fx-cursor: hand;
+}
+
+.rouge-button:hover {
+    -fx-background-color: #e53935;
+}
+
+.retour-button {
+    -fx-background-color: transparent;
+    -fx-padding: 8 16;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+    -fx-border-width: 1;
+    -fx-cursor: hand;
+}
+
+.retour-button:hover {
+    -fx-background-color: #E0E0E0; /* Gris clair */
+}
+
+.retour-button:pressed {
+    -fx-background-color: #C8C8C8; /* Gris un peu plus foncé */
+}
