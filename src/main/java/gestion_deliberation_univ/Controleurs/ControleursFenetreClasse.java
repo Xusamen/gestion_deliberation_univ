@@ -179,6 +179,26 @@ public class ControleursFenetreClasse implements Initializable {
 
                         boutonDefinirMatiere.setOnAction(event -> {
                             data = getTableView().getItems().get(getIndex());
+                            switch (data.getNiveau_classe()) {
+                                case "Licence_1":
+                                    
+                                    break;
+                                case "Licence_2":
+                                    
+                                    break;
+                                case "Licence_3":
+                                    
+                                    break;
+                                case "Master_1":
+                                    
+                                    break;
+                                case "Master_2":
+                                    
+                                    break;
+                            
+                                default:
+                                    break;
+                            }
 
                         });
 
