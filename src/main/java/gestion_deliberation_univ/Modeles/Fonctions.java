@@ -8,6 +8,7 @@ import java.sql.SQLException;
 
 import gestion_deliberation_univ.App;
 import gestion_deliberation_univ.Modeles.StructuresDonnees.structure_classe;
+import gestion_deliberation_univ.Modeles.StructuresDonnees.structure_etudiant;
 import gestion_deliberation_univ.Modeles.StructuresDonnees.structure_filiere;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -34,6 +35,8 @@ public class Fonctions {
         alert.showAndWait();
     }
 
+    // GESTION DES
+    // FILIERES//////////////////////////////////////////////////////////////////////
     // creer une filiere
     public static ObservableList<structure_filiere> createFiliere(String nomFiliere) {
         String requete = "INSERT INTO filiere (nom_filiere) VALUES (?)";
@@ -58,7 +61,6 @@ public class Fonctions {
         try (Connection connexion = DriverManager.getConnection(App.url, App.utilisateur, App.motDePasse);
                 PreparedStatement statement = connexion.prepareStatement(requete)) {
             ResultSet resultSet = statement.executeQuery();
-
             while (resultSet.next()) {
                 int id = resultSet.getInt("idFiliere");
                 String nom = resultSet.getString("nom_filiere");
@@ -107,14 +109,16 @@ public class Fonctions {
         }
     }
 
+    // GESTION DES
+    // CLASSES//////////////////////////////////////////////////////////////////////
     // lister les classes d'une filiere
-    public static ObservableList<structure_classe> lister_classe() {
-        String requete = "SELECT idClasse, niveau, idFiliere, annee_universitaire, effectif FROM classe";
+    public static ObservableList<structure_classe> lister_classe(int idFilere) {
+        String requete = "SELECT idClasse, niveau, idFiliere, annee_universitaire, effectif FROM classe WHERE idFiliere = ?";
         ObservableList<structure_classe> liste_classe = FXCollections.observableArrayList();
 
         try (Connection connexion = DriverManager.getConnection(App.url, App.utilisateur, App.motDePasse);
                 PreparedStatement statement = connexion.prepareStatement(requete)) {
-
+            statement.setInt(1, idFilere);
             ResultSet resultSet = statement.executeQuery();
             while (resultSet.next()) {
                 int idClasse = resultSet.getInt("idClasse");
@@ -149,26 +153,21 @@ public class Fonctions {
         }
     }
 
-    // suggestions des annees universitaires existantes dans la base de donnees
-    public static ObservableList<String> suggestion_annee_universitaire() {
-        String requete = "SELECT DISTINCT annee_universitaire FROM classe";
-        ObservableList<String> liste_annee_univ = FXCollections.observableArrayList();
+    // supprimer une classe
+    public static boolean supprimer_classe(int id) {
+        String requete = "DELETE FROM classe WHERE idClasse = ?";
 
         try (Connection connexion = DriverManager.getConnection(App.url, App.utilisateur, App.motDePasse);
                 PreparedStatement statement = connexion.prepareStatement(requete)) {
 
-            ResultSet resultSet = statement.executeQuery();
-            while (resultSet.next()) {
-                String annee_univ = resultSet.getString("annee_universitaire");
-                liste_annee_univ.add(annee_univ);
-            }
+            statement.setInt(1, id);
+            statement.executeUpdate();
+            return true;
 
         } catch (SQLException erreur) {
-            System.err.println("Erreur SQL: " + erreur.getMessage());
+            System.err.println(erreur.getMessage());
+            return false;
         }
-
-        // Retourne sous forme de tableau
-        return liste_annee_univ;
     }
 
     // recuperer l'id d'une classe a partir de son niveau et annee universitaire
@@ -193,6 +192,30 @@ public class Fonctions {
         return idClasse;
     }
 
+    // suggestions des annees universitaires existantes dans la base de donnees
+    public static ObservableList<String> suggestion_annee_universitaire() {
+        String requete = "SELECT DISTINCT annee_universitaire FROM classe";
+        ObservableList<String> liste_annee_univ = FXCollections.observableArrayList();
+
+        try (Connection connexion = DriverManager.getConnection(App.url, App.utilisateur, App.motDePasse);
+                PreparedStatement statement = connexion.prepareStatement(requete)) {
+
+            ResultSet resultSet = statement.executeQuery();
+            while (resultSet.next()) {
+                String annee_univ = resultSet.getString("annee_universitaire");
+                liste_annee_univ.add(annee_univ);
+            }
+
+        } catch (SQLException erreur) {
+            System.err.println("Erreur SQL: " + erreur.getMessage());
+        }
+
+        // Retourne sous forme de tableau
+        return liste_annee_univ;
+    }
+
+
+    // GESTION DES ETUDIANTS//////////////////////////////////////////////////////////////////////
     // ajouter un etudiant a une classe
     public static boolean ajouter_etudiant(String nom_etudiant, String prenom_etudiant, String matricule_etudiant,
             String niveau_classe, String annee_univ) {
@@ -234,6 +257,27 @@ public class Fonctions {
         } catch (SQLException e) {
             System.err.println("Erreur mise à jour effectif : " + e.getMessage());
         }
+    }
+
+    public static ObservableList<structure_etudiant> lister_etudiant(int id) {
+        String requete = "SELECT idEtudiant, nom, prenoms, matricule FROM etudiant WHERE idClasse = ?";
+        ObservableList<structure_etudiant> liste_etudiant = FXCollections.observableArrayList();
+
+        try (Connection connexion = DriverManager.getConnection(App.url, App.utilisateur, App.motDePasse);
+                PreparedStatement statement = connexion.prepareStatement(requete)) {
+            statement.setInt(1, id);
+            ResultSet resultSet = statement.executeQuery();
+            while (resultSet.next()) {
+                int idEtudiant = resultSet.getInt("idEtudiant");
+                String nom_etudiant = resultSet.getString("nom");
+                String prenom_etudiant = resultSet.getString("prenoms");
+                String matricule = resultSet.getString("matricule");
+                liste_etudiant.add(new structure_etudiant(idEtudiant, nom_etudiant, prenom_etudiant, matricule));
+            }
+        } catch (SQLException erreur) {
+            System.err.println(erreur.getMessage());
+        }
+        return liste_etudiant;
     }
 
 }

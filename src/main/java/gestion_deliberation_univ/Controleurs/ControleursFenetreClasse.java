@@ -5,6 +5,7 @@ import java.net.URL;
 import java.util.ResourceBundle;
 import java.util.function.Function;
 
+import gestion_deliberation_univ.App;
 import gestion_deliberation_univ.Modeles.Fonctions;
 import gestion_deliberation_univ.Modeles.StructuresDonnees.structure_classe;
 import gestion_deliberation_univ.Modeles.StructuresDonnees.structure_filiere;
@@ -13,6 +14,8 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.TableCell;
@@ -20,8 +23,12 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.image.Image;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Text;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 import javafx.util.Callback;
 
 public class ControleursFenetreClasse implements Initializable {
@@ -55,22 +62,26 @@ public class ControleursFenetreClasse implements Initializable {
     @FXML
     private TableView<structure_classe> tableau_classe;
 
+    @FXML
+    private Text nom_filiere;
+
     @Override
     public void initialize(URL arg0, ResourceBundle arg1) {
         colonne_annee_univ.setCellValueFactory(new PropertyValueFactory<>("Annee_univ"));
         colonne_niveau_classe.setCellValueFactory(new PropertyValueFactory<>("Niveau_classe"));
         colonne_effectif_classe.setCellValueFactory(new PropertyValueFactory<>("Effectif"));
         bouton_action_classe();
-        tableau_classe.setItems(Fonctions.lister_classe());
+        tableau_classe.setItems(Fonctions.lister_classe(ControleursFenetreAcceuil.data.getId()));
 
-        // initialisation des choicebox
+        // initialisation des choicebox & autres composants
+        nom_filiere.setText(ControleursFenetreAcceuil.data.getNom_filiere());
         choicebox_annee_univ.getItems().addAll(Fonctions.suggestion_annee_universitaire());
         choicebox_classe.getItems().addAll("Licence_1", "Licence_2", "Licence_3", "Master_1", "Master_2");
     }
 
     public void reload() {
         tableau_classe.getItems().clear();
-        tableau_classe.setItems(Fonctions.lister_classe());
+        tableau_classe.setItems(Fonctions.lister_classe(ControleursFenetreAcceuil.data.getId()));
     }
 
     @FXML
@@ -103,6 +114,17 @@ public class ControleursFenetreClasse implements Initializable {
 
     @FXML
     void fermer_fenetre_classe(ActionEvent event) {
+        try{
+            App.setRoot("/gestion_deliberation_univ/views/FenetreAcceuil");
+        }catch(IOException erreur){
+            System.err.println(erreur.getMessage());
+        }
+    }
+
+    private static Stage FenetreListeEtudiant;
+
+    public static void FermerFenetreListeEtudiant() {
+        FenetreListeEtudiant.close();
     }
 
     public static structure_classe data;
@@ -112,19 +134,47 @@ public class ControleursFenetreClasse implements Initializable {
             @Override
             public TableCell<structure_classe, Void> call(final TableColumn<structure_classe, Void> param) {
                 final TableCell<structure_classe, Void> cell = new TableCell<structure_classe, Void>() {
-                    private final Button boutonConsulterClasse = new Button("Consulter Classe");
+                    private final Button boutonConsulterClasse = new Button("Liste Etudiants");
                     private final Button boutonSupprimerClasse = new Button("Supprimer Classe");
                     private final Button boutonDefinirMatiere = new Button("Definir Matieres");
 
                     {
                         boutonConsulterClasse.setOnAction(event -> {
                             data = getTableView().getItems().get(getIndex());
+                            try {
+                                Image icone = new Image(
+                                        getClass().getResourceAsStream("/gestion_deliberation_univ/icones/etudiant.png"));
+                                FXMLLoader loader = new FXMLLoader(
+                                        getClass().getResource(
+                                                "/gestion_deliberation_univ/views/FenetreListeEtudiant.fxml"));
+                                Parent root = loader.load();
+                                @SuppressWarnings("unused")
+                                ControleurFenetreListeEtudiant controleur = loader.getController();
+                                FenetreListeEtudiant = new Stage();
+                                FenetreListeEtudiant.getIcons().add(icone);
+                                FenetreListeEtudiant.setResizable(false);
+                                FenetreListeEtudiant.initModality(Modality.APPLICATION_MODAL); // Modality.WINDOW_MODAL
+                                FenetreListeEtudiant
+                                        .initOwner(((javafx.scene.Node) event.getSource()).getScene().getWindow());
+                                Scene scene = new Scene(root);
+                                scene.setFill(Color.TRANSPARENT);
+                                FenetreListeEtudiant.setScene(scene);
+                                FenetreListeEtudiant.showAndWait();
+
+                            } catch (IOException erreur) {
+                                System.err.println(erreur.getMessage());
+                            }
 
                         });
 
                         boutonSupprimerClasse.setOnAction(event -> {
                             data = getTableView().getItems().get(getIndex());
-
+                            if(Fonctions.supprimer_classe(ControleursFenetreClasse.data.getId())) {
+                                Fonctions.Alerte_succes("Classe supprimee avec succes.");
+                                reload();
+                            } else {
+                                Fonctions.Alerte_erreur("Echec de la suppression de la classe.");
+                            }
                         });
 
                         boutonDefinirMatiere.setOnAction(event -> {

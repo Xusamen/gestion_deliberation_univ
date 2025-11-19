@@ -18,7 +18,7 @@ public class App extends Application {
     @Override
     public void start(Stage PremiereFenetre) {
         try {
-            scene = new Scene(loadFXML("/gestion_deliberation_univ/views/fenetre_acceuil"));
+            scene = new Scene(loadFXML("/gestion_deliberation_univ/views/FenetreAcceuil"));
             Image icone = new Image(getClass().getResourceAsStream("/gestion_deliberation_univ/icones/icone_univ.png"));
             PremiereFenetre.getIcons().add(icone);
             PremiereFenetre.setResizable(false);

@@ -12,6 +12,7 @@
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
 
 <Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="523.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="gestion_deliberation_univ.Controleurs.ControleursFenetreClasse">
    <children>
@@ -20,9 +21,9 @@
             <Font name="Segoe UI" size="15.0" />
          </font>
       </Button>
-      <TableView fx:id="tableau_classe" focusTraversable="false" layoutX="15.0" layoutY="107.0" prefHeight="350.0" prefWidth="690.0">
+      <TableView fx:id="tableau_classe" focusTraversable="false" layoutX="15.0" layoutY="107.0" prefHeight="350.0" prefWidth="690.0" stylesheets="@../css/tableview.css">
         <columns>
-          <TableColumn fx:id="colonne_annee_univ" maxWidth="115.0" minWidth="115.0" prefWidth="115.0" text="Annee universitaire" />
+          <TableColumn fx:id="colonne_annee_univ" maxWidth="125.0" minWidth="120.0" prefWidth="125.0" text="Annee universitaire" />
           <TableColumn fx:id="colonne_niveau_classe" maxWidth="100.0" minWidth="100.0" prefWidth="100.0" text="Niveau" />
             <TableColumn fx:id="colonne_effectif_classe" maxWidth="70.0" minWidth="70.0" prefWidth="70.0" text="Effectif" />
             <TableColumn fx:id="colonne_action" prefWidth="275.0" text="Actions" />
@@ -137,6 +138,11 @@
             </Button>
          </children>
       </VBox>
+      <Text fx:id="nom_filiere" layoutX="14.0" layoutY="80.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Text" textAlignment="CENTER" wrappingWidth="690.0">
+         <font>
+            <Font name="Segoe UI Bold" size="25.0" />
+         </font>
+      </Text>
    </children>
    <cursor>
       <Cursor fx:constant="DEFAULT" />

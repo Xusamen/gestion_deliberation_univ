@@ -36,8 +36,7 @@ import javafx.util.Duration;
 
 public class ControleursFenetreAcceuil implements Initializable {
 
-    @FXML
-    private StackPane conteneur_de_fenetre;
+    @FXML StackPane conteneur_de_fenetre;
 
     @FXML
     private TableColumn<structure_filiere, Void> cellule_action;
@@ -103,7 +102,7 @@ public class ControleursFenetreAcceuil implements Initializable {
                             Pane vueDashboard;
                             try {
                                 vueDashboard = FXMLLoader.load(
-                                        getClass().getResource("/gestion_deliberation_univ/views/fenetre_classe.fxml"));
+                                        getClass().getResource("/gestion_deliberation_univ/views/FenetreClasse.fxml"));
                                 ChangerContenu_StackPane(vueDashboard);
                             } catch (IOException e) {
                                 e.printStackTrace();
@@ -123,7 +122,8 @@ public class ControleursFenetreAcceuil implements Initializable {
                                 Image icone = new Image(
                                         getClass().getResourceAsStream("/gestion_deliberation_univ/icones/ajout.png"));
                                 FXMLLoader loader = new FXMLLoader(
-                                        getClass().getResource("/gestion_deliberation_univ/views/FenetreAjoutClasse.fxml"));
+                                        getClass().getResource(
+                                                "/gestion_deliberation_univ/views/FenetreAjoutClasse.fxml"));
                                 Parent root = loader.load();
                                 @SuppressWarnings("unused")
                                 ControleurFenetreAjoutClasse controleur = loader.getController();
@@ -186,5 +186,6 @@ public class ControleursFenetreAcceuil implements Initializable {
             conteneur_de_fenetre.getChildren().add(nouveauContenu);
         }
     }
+
 
 }

@@ -52,4 +52,30 @@ public class StructuresDonnees {
             return effectif;
         }
     }
+
+    public static class structure_etudiant {
+        private int id;
+        private String nom_etudiant;
+        private String prenom_etudiant;
+        private String matricule;
+
+        public structure_etudiant(int id, String nom_etudiant, String prenom_etudiant, String matricule) {
+            this.id = id;
+            this.nom_etudiant = nom_etudiant;
+            this.prenom_etudiant = prenom_etudiant;
+            this.matricule = matricule;
+        }
+
+        public int getId() {
+            return id;
+        }
+
+        public String getNom_prenom() {
+            return nom_etudiant + " " + prenom_etudiant;
+        }
+
+        public String getMatricule() {
+            return matricule;
+        }
+    }
 }
