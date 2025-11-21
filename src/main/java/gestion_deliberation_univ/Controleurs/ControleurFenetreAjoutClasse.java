@@ -51,7 +51,7 @@ public class ControleurFenetreAjoutClasse implements Initializable {
         }
 
 
-        if (Fonctions.ajouter_classe(niveau_classe, annee_univ, ControleursFenetreAcceuil.data.getId())) {
+        if (Fonctions.ajouter_classe(niveau_classe, annee_univ, ControleursFenetreAcceuil.data.getId_filiere())) {
             champ_annee_universitaire.clear();
             choicebox_niveau_classe.setValue(null);
             Fonctions.Alerte_succes("Classe ajoutée avec succès.");

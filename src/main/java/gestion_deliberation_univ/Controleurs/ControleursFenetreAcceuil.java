@@ -7,8 +7,6 @@ import java.util.ResourceBundle;
 import gestion_deliberation_univ.Modeles.Fonctions;
 import gestion_deliberation_univ.Modeles.StructuresDonnees.structure_filiere;
 import javafx.animation.FadeTransition;
-import javafx.application.Platform;
-import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -18,7 +16,6 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.control.TabPane;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -36,7 +33,8 @@ import javafx.util.Duration;
 
 public class ControleursFenetreAcceuil implements Initializable {
 
-    @FXML StackPane conteneur_de_fenetre;
+    @FXML
+    StackPane conteneur_de_fenetre;
 
     @FXML
     private TableColumn<structure_filiere, Void> cellule_action;
@@ -92,9 +90,15 @@ public class ControleursFenetreAcceuil implements Initializable {
             @Override
             public TableCell<structure_filiere, Void> call(final TableColumn<structure_filiere, Void> param) {
                 final TableCell<structure_filiere, Void> cell = new TableCell<structure_filiere, Void>() {
-                    private final Button boutonConsulterClasse = new Button("Les Classes");
+                    private final Button boutonConsulterClasse = new Button("Liste des classes");
                     private final Button boutonSupprimerFiliere = new Button("Supprimer Filiere");
                     private final Button boutonAjouterClasse = new Button("Ajouter une classe");
+
+                    {
+                        boutonAjouterClasse.setStyle("-fx-background-color: #4CAF50; -fx-text-fill: white;");
+                        boutonConsulterClasse.setStyle("-fx-background-color: #2196F3; -fx-text-fill: white;");
+                        boutonSupprimerFiliere.setStyle("-fx-background-color: #f44336; -fx-text-fill: white;");
+                    }
 
                     {
                         boutonConsulterClasse.setOnAction(event -> {
@@ -111,7 +115,7 @@ public class ControleursFenetreAcceuil implements Initializable {
 
                         boutonSupprimerFiliere.setOnAction(event -> {
                             data = getTableView().getItems().get(getIndex());
-                            Fonctions.supprimer_filiere(data.getId());
+                            Fonctions.supprimer_filiere(data.getId_filiere());
                             Fonctions.Alerte_succes("Filiere supprimee avec succes.");
                             initialize(null, null);
                         });
@@ -186,6 +190,5 @@ public class ControleursFenetreAcceuil implements Initializable {
             conteneur_de_fenetre.getChildren().add(nouveauContenu);
         }
     }
-
 
 }

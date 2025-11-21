@@ -10,6 +10,10 @@ import gestion_deliberation_univ.App;
 import gestion_deliberation_univ.Modeles.StructuresDonnees.structure_classe;
 import gestion_deliberation_univ.Modeles.StructuresDonnees.structure_etudiant;
 import gestion_deliberation_univ.Modeles.StructuresDonnees.structure_filiere;
+import gestion_deliberation_univ.Modeles.StructuresDonnees.structure_matiere;
+import gestion_deliberation_univ.Modeles.StructuresDonnees.structure_report_note;
+import gestion_deliberation_univ.Modeles.StructuresDonnees.suggestion_matiere;
+import gestion_deliberation_univ.Outils.Outils;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.Alert;
@@ -134,7 +138,7 @@ public class Fonctions {
         return liste_classe;
     }
 
-    // ajouter une classe a une filiere
+    // ajouter une classe à une filiere
     public static boolean ajouter_classe(String niveau_classe, String annee_univ, int id) {
         String requete = "INSERT INTO classe (niveau, annee_universitaire, idFiliere) VALUES (?, ?, ?)";
 
@@ -170,9 +174,10 @@ public class Fonctions {
         }
     }
 
-    // recuperer l'id d'une classe a partir de son niveau et annee universitaire
-    public static int idClasse(String niveau_classe, String annee_univ) {
-        String requete = "SELECT idClasse FROM classe WHERE niveau = ? AND annee_universitaire = ?";
+    // recuperer l'id d'une classe a partir de son niveau et annee universitaire et
+    // l'id de la filiere
+    public static int idClasse(String niveau_classe, String annee_univ, int idFilere) {
+        String requete = "SELECT idClasse FROM classe WHERE niveau = ? AND annee_universitaire = ? AND idFiliere = ?";
         int idClasse = -1;
 
         try (Connection connexion = DriverManager.getConnection(App.url, App.utilisateur, App.motDePasse);
@@ -180,6 +185,7 @@ public class Fonctions {
 
             statement.setString(1, niveau_classe);
             statement.setString(2, annee_univ);
+            statement.setInt(3, idFilere);
             ResultSet resultSet = statement.executeQuery();
 
             if (resultSet.next()) {
@@ -214,18 +220,18 @@ public class Fonctions {
         return liste_annee_univ;
     }
 
-
-    // GESTION DES ETUDIANTS//////////////////////////////////////////////////////////////////////
+    // GESTION DES
+    // ETUDIANTS//////////////////////////////////////////////////////////////////////
     // ajouter un etudiant a une classe
     public static boolean ajouter_etudiant(String nom_etudiant, String prenom_etudiant, String matricule_etudiant,
-            String niveau_classe, String annee_univ) {
+            String niveau_classe, String annee_univ, int idFilere) {
 
         String requete = "INSERT INTO etudiant (nom, prenoms, matricule, idClasse) VALUES (?, ?, ?, ?)";
 
         try (Connection connexion = DriverManager.getConnection(App.url, App.utilisateur, App.motDePasse);
                 PreparedStatement statement = connexion.prepareStatement(requete)) {
 
-            int idClasse = idClasse(niveau_classe, annee_univ);
+            int idClasse = idClasse(niveau_classe, annee_univ, idFilere);
 
             statement.setString(1, nom_etudiant);
             statement.setString(2, prenom_etudiant);
@@ -278,6 +284,164 @@ public class Fonctions {
             System.err.println(erreur.getMessage());
         }
         return liste_etudiant;
+    }
+
+    public static ObservableList<structure_matiere> lister_matieres(int idClasse, String semestre) {
+        String requete = "SELECT idMatiere, unite_enseignement, nom_matiere, coefficient " +
+                "FROM matiere WHERE idClasse = ? AND semestre = ?";
+
+        ObservableList<structure_matiere> liste = FXCollections.observableArrayList();
+
+        try (Connection connexion = DriverManager.getConnection(App.url, App.utilisateur, App.motDePasse);
+                PreparedStatement statement = connexion.prepareStatement(requete)) {
+
+            statement.setInt(1, idClasse);
+            statement.setString(2, semestre);
+
+            ResultSet rs = statement.executeQuery();
+            while (rs.next()) {
+                int idMatiere = rs.getInt("idMatiere");
+                String unite = rs.getString("unite_enseignement");
+                String nom = rs.getString("nom_matiere");
+                Double coef = rs.getDouble("coefficient");
+
+                liste.add(new structure_matiere(idMatiere, unite, nom, coef));
+            }
+
+        } catch (SQLException e) {
+            System.err.println(e.getMessage());
+        }
+
+        return liste;
+    }
+
+    public static boolean ajouter_matiere(String ue, String nom, String coef, int id_classe, String semestre) {
+        String requete = "INSERT INTO matiere (unite_enseignement, nom_matiere, coefficient, idClasse, semestre) VALUES (?, ?, ?, ?, ?)";
+
+        try (Connection connexion = DriverManager.getConnection(App.url, App.utilisateur, App.motDePasse);
+                PreparedStatement statement = connexion.prepareStatement(requete)) {
+
+            statement.setString(1, ue);
+            statement.setString(2, nom);
+            statement.setDouble(3, Double.parseDouble(coef));
+            statement.setInt(4, id_classe);
+            statement.setString(5, semestre);
+            statement.executeUpdate();
+            return true;
+
+        } catch (SQLException erreur) {
+            System.err.println(erreur.getMessage());
+            return false;
+        }
+    }
+
+    public static boolean supprimer_etudiant(int id_etudiant) {
+        String requete = "DELETE FROM etudiant WHERE idEtudiant = ?";
+
+        try (Connection connexion = DriverManager.getConnection(App.url, App.utilisateur, App.motDePasse);
+                PreparedStatement statement = connexion.prepareStatement(requete)) {
+
+            statement.setInt(1, id_etudiant);
+            statement.executeUpdate();
+            return true;
+
+        } catch (SQLException erreur) {
+            System.err.println(erreur.getMessage());
+            return false;
+        }
+    }
+
+    // GESTION DES
+    // NOTES//////////////////////////////////////////////////////////////////////
+
+    public static boolean ajouter_note(int id_etudiant, int id_matiere, double note, String numero_devoir,
+            String session) {
+        String requete = "INSERT INTO note (valeur, session, numero_devoir, idEtudiant, idMatiere) "
+                + "VALUES (?, ?, ?, ?, ?)";
+
+        try (Connection connexion = DriverManager.getConnection(App.url, App.utilisateur, App.motDePasse);
+                PreparedStatement statement = connexion.prepareStatement(requete)) {
+
+            statement.setDouble(1, note);
+            statement.setString(2, session.toUpperCase());
+            statement.setString(3, numero_devoir);
+            statement.setInt(4, id_etudiant);
+            statement.setInt(5, id_matiere);
+
+            statement.executeUpdate();
+            return true;
+
+        } catch (SQLException erreur) {
+            System.err.println("Erreur insertion note : " + erreur.getMessage());
+            return false;
+        }
+    }
+
+    public static ObservableList<structure_report_note> lister_notes_etudiant(
+            int id_etudiant, int id_classe, String semestre) {
+
+        String requete = "SELECT m.nom_matiere, n.session, " +
+                "MAX(CASE WHEN n.numero_devoir = 'Devoir 1' THEN n.valeur END) AS note1, " +
+                "MAX(CASE WHEN n.numero_devoir = 'Devoir 2' THEN n.valeur END) AS note2 " +
+                "FROM matiere m " +
+                "JOIN note n ON n.idMatiere = m.idMatiere AND n.idEtudiant = ? " +
+                "WHERE m.idClasse = ? AND m.semestre = ? " +
+                "GROUP BY m.idMatiere, m.nom_matiere, n.session " +
+                "ORDER BY n.session = 'Normale' DESC, n.session = 'Rattrapage' ASC";
+
+        ObservableList<structure_report_note> liste_notes = FXCollections.observableArrayList();
+
+        try (Connection connexion = DriverManager.getConnection(App.url, App.utilisateur, App.motDePasse);
+                PreparedStatement statement = connexion.prepareStatement(requete)) {
+
+            statement.setInt(1, id_etudiant);
+            statement.setInt(2, id_classe);
+            statement.setString(3, Outils.extraireSemestre(semestre));
+
+            ResultSet rs = statement.executeQuery();
+
+            while (rs.next()) {
+                liste_notes.add(new structure_report_note(
+                    rs.getString("nom_matiere"),
+                    rs.getString("note1"),
+                    rs.getString("note2"),
+                    rs.getString("session"))
+                );
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return liste_notes;
+    }
+
+    // lister les matieres d'une classe pour les suggestions choicebox dans la
+    // fenetre des notes etudiant
+    public static ObservableList<suggestion_matiere> lister_matiere_classe(int id_classe, String semestre) {
+
+        String requete = "SELECT idMatiere, nom_matiere FROM matiere WHERE idClasse = ? AND semestre = ?";
+        ObservableList<suggestion_matiere> liste_matiere = FXCollections.observableArrayList();
+
+        try (Connection connexion = DriverManager.getConnection(App.url, App.utilisateur, App.motDePasse);
+                PreparedStatement statement = connexion.prepareStatement(requete)) {
+
+            statement.setInt(1, id_classe);
+            statement.setString(2, Outils.extraireSemestre(semestre));
+
+            ResultSet resultSet = statement.executeQuery();
+
+            while (resultSet.next()) {
+                int id = resultSet.getInt("idMatiere");
+                String nom = resultSet.getString("nom_matiere");
+
+                liste_matiere.add(new suggestion_matiere(id, nom));
+            }
+
+        } catch (SQLException erreur) {
+            System.err.println(erreur.getMessage());
+        }
+        return liste_matiere;
     }
 
 }

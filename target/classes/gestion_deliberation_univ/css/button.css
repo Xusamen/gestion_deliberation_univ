@@ -42,9 +42,9 @@
 }
 
 .retour-button:hover {
-    -fx-background-color: #E0E0E0; /* Gris clair */
+    -fx-background-color: #E0E0E0; 
 }
 
 .retour-button:pressed {
-    -fx-background-color: #C8C8C8; /* Gris un peu plus foncé */
+    -fx-background-color: #C8C8C8; 
 }
